@@ -1,0 +1,39 @@
+# This policy enforces that EC2 instances have required tags: Team, Env, and Project
+
+import "tfplan/v2" as tfplan
+
+# Get all EC2 instances from the plan
+ec2_instances = filter tfplan.resource_changes as _, rc {
+    rc.type is "aws_instance" and
+    rc.mode is "managed" and
+    (rc.change.actions contains "create" or rc.change.actions contains "update")
+}
+
+# Required tags
+required_tags = ["Team", "Env", "Project"]
+
+# Validation function to check required tags
+validate_required_tags = func(instance) {
+    tags = instance.change.after.tags else {}
+    missing_tags = []
+    
+    for required_tags as tag {
+        if tag not in keys(tags) {
+            append(missing_tags, tag)
+        }
+    }
+    
+    if length(missing_tags) > 0 {
+        print("EC2 instance", instance.address, "is missing required tags:", missing_tags)
+        return false
+    }
+    
+    return true
+}
+
+# Main rule - all EC2 instances must have required tags
+main = rule {
+    all ec2_instances as _, instance {
+        validate_required_tags(instance)
+    }
+}
