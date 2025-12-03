@@ -1,0 +1,28 @@
+terraform_version = "1.5.0"
+
+resource_changes = {
+    "aws_instance.example": {
+        "address": "aws_instance.example",
+        "mode": "managed",
+        "type": "aws_instance",
+        "name": "example",
+        "provider_name": "registry.terraform.io/hashicorp/aws",
+        "change": {
+            "actions": ["create"],
+            "before": null,
+            "after": {
+                "instance_type": "t3.medium",
+                "ami": "ami-12345678",
+                "tags": {
+                    "Name": "example-instance",
+                    "Team": "engineering",
+                    "Env": "production",
+                    "Project": "web-app"
+                }
+            },
+            "after_unknown": {},
+        },
+    },
+}
+
+output_changes = {}
